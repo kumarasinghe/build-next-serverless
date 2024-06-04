@@ -1,6 +1,6 @@
 {
   "name": "build-next-serverless",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build serverless functions from Next.js projects.",
   "keywords": [
     "next",

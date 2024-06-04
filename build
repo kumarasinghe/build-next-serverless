@@ -61,7 +61,7 @@ if [ "$APP_ROOT" != "$STANDALONE_BUILD_ROOT" ]; then
 	mv "$STANDALONE_BUILD_ROOT/node_modules" "$DIST_ROOT/node_modules"
 fi
 
-cp -r "$PROJECT_NODE_MODULES_ROOT/serverless-http" "$DIST_ROOT/node_modules"
+cp -r "$SCRIPT_ROOT/../serverless-http" "$DIST_ROOT/node_modules"
 
 # remove the leftover artifacts
 echo "Cleaning up..."
