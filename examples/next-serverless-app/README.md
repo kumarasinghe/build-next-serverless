@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next Serverless Example
 
-## Getting Started
+This example intends to [show you the changes needed to add serverless support](https://github.com/kumarasinghe/build-next-serverless/commit/96bba523ad3b58ff5fae516077a7b8919f89d8f8) to your own Next.js app.<br/>
+It contains a HelloWorld Serverless function which uses `build-next-serverless` for building and `AWS SAM CLI` for deployment.
 
-First, run the development server:
+## Building & Deploying
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. [Setup AWS SAM CLI.](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Build the function:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```sh
+   cd my-next-app
+   sam build HelloWorld --build-in-source --use-container
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   This command will execute the `Makefile` behind the scene, which will hand over the build process to `build-next-serverless`
 
-## Learn More
+3. Test locally:
 
-To learn more about Next.js, take a look at the following resources:
+   ```sh
+   sam local invoke HelloWorld
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   Your lambda will be invoked inside a Docker container.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+4. Deploy
 
-## Deploy on Vercel
+   ```sh
+   sam deploy --guided
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   HelloWorld function will be deployed according to the infrastructure specified in `template.yaml`<br/>
+   `--guided` switch will be only needed for your first deployment.
