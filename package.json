@@ -1,0 +1,24 @@
+{
+  "name": "build-next-serverless",
+  "version": "1.0.0",
+  "description": "Build serverless functions from Next.js projects.",
+  "keywords": [
+    "next",
+    "serverless",
+    "lambda",
+    "aws",
+    "sam"
+  ],
+  "bin": {
+    "build-next-serverless": "./build"
+  },
+  "license": "ISC",
+  "author": "Naveen Kumarasinghe <dndkumarasinghe@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kumarasinghe/build-next-serverless.git"
+  },
+  "dependencies": {
+    "serverless-http": "3.2.0"
+  }
+}

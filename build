@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+# This script runs on a Next.js project directory and builds it into a serverless function
+
+set -e
+
+SCRIPT_ROOT=$(dirname $0)
+PROJECT_ROOT=$(pwd)
+PROJECT_NODE_MODULES_ROOT=$(npm root) # handles monorepos
+BUILD_ROOT="$PROJECT_ROOT/.next"
+STANDALONE_BUILD_ROOT="$BUILD_ROOT/standalone"
+DIST_ROOT="$PROJECT_ROOT/dist"
+
+RED="\033[1;31m"
+GREEN="\033[0;32m"
+BLUE="\033[1;34m"
+ORANGE="\033[0;33m"
+RESET="\033[0m"
+
+printf "$BLUE
+╔═════════════════════════╗
+│  build-next-serverless  │
+╚═════════════════════════╝
+$RESET"
+
+# check for a valid Next.js project
+if [ ! -f "next.config.js" ] && [ ! -f "next.config.mjs" ] && [ ! -f "next.config.cjs" ]; then
+printf "$RED
+Error: No Next.js project detected in the current directory.
+$RESET" >&2
+exit 1
+fi
+
+# build Next.js project
+echo "Building Next.js app..."
+# TODO: issue a warning when not building in a Serverless alike
+# environment as it could introduce incompatibilities with node_module
+npm exec next build
+
+# check for standalone mode
+if [ ! -d ".next/standalone" ]; then
+printf "$RED
+Error: Please enable Standalone mode in your Next.js app.
+https://nextjs.org/docs/pages/api-reference/next-config-js/output#automatically-copying-traced-files\n
+$RESET" >&2
+exit 1
+fi
+
+# monorepos store the app in a different directory
+APP_ROOT=$(dirname $(find $STANDALONE_BUILD_ROOT -name ".next" -type d))
+
+# copy artifacts to dist
+echo "Copying artifacts to ./dist..."
+rm -rf "$DIST_ROOT"
+mv "$APP_ROOT" "$DIST_ROOT"
+mv "$BUILD_ROOT/static" "$DIST_ROOT/.next/static"
+cp -r "$PROJECT_ROOT/public" "$DIST_ROOT"
+cp "$SCRIPT_ROOT/serverless-entrypoint.mjs" "$DIST_ROOT/index.mjs"
+
+# in monorepos node_modules live outside APP_ROOT, therefore should be explicitly copied.
+if [ "$APP_ROOT" != "$STANDALONE_BUILD_ROOT" ]; then
+	mv "$STANDALONE_BUILD_ROOT/node_modules" "$DIST_ROOT/node_modules"
+fi
+
+cp -r "$PROJECT_NODE_MODULES_ROOT/serverless-http" "$DIST_ROOT/node_modules"
+
+# remove the leftover artifacts
+echo "Cleaning up..."
+rm -rf "$BUILD_ROOT"
+
+printf "$GREEN
+Entrypoint  : index.handler
+Size        : $(du -sh "$DIST_ROOT" | cut -f1)
+Server mode : node server.js
+$RESET"
